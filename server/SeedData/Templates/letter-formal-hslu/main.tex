@@ -1,0 +1,50 @@
+% NOTE: The HSLU logo is shipped as files/hslu-logo.png. If for some reason it's
+%       missing, the template still compiles (you'll see a placeholder text instead).
+%       The logo is from the public HSLU brand assets; you may replace it with a
+%       different variant (white, English, etc.) as needed.
+
+\documentclass[a4paper, fromalign=left, fromphone=true, fromemail=true]{scrlttr2}
+\LoadLetterOption{DIN}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{xcolor}
+
+% Paragraph spacing — a blank line between paragraphs renders as visible
+% vertical space instead of the LaTeX default (first-line indent, no gap).
+\usepackage{parskip}
+
+\definecolor{hsluRed}{HTML}{E1001A}
+
+\setkomavar{fromname}{Your Name \\ Hochschule Luzern -- Informatik}
+\setkomavar{fromaddress}{Suurstoffi 41 \\ 6343 Rotkreuz \\ Switzerland}
+\setkomavar{fromphone}{+41 41 757 68 11}
+\setkomavar{fromemail}{your.name@stud.hslu.ch}
+
+\setkomavar{firsthead}{%
+  \IfFileExists{hslu-logo.png}{\includegraphics[width=4cm]{hslu-logo.png}}{\textcolor{hsluRed}{\Large\textbf{HSLU LOGO}}}%
+}
+
+\setkomavar{subject}{\textcolor{hsluRed}{Subject of your letter}}
+
+\begin{document}
+
+\begin{letter}{Recipient Name \\ Street and Number \\ 0000 City \\ Country}
+
+\opening{Dear Sir or Madam,}
+
+This is a placeholder paragraph for your formal letter. Replace this text with
+the body of your message. The template is pre-configured for HSLU Informatik
+correspondence, including the Rotkreuz campus address and HSLU brand color.
+
+You can add as many paragraphs as you need. The KOMA-Script \texttt{scrlttr2}
+class handles DIN-compliant formatting automatically, so you can focus on the
+content rather than the layout.
+
+\closing{Yours sincerely,}
+
+\end{letter}
+
+\end{document}

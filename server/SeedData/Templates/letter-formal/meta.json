@@ -1,0 +1,7 @@
+{
+  "slug": "letter-formal",
+  "title": "Formal Letter",
+  "description": "A formal A4 letter using KOMA-Script's scrlttr2 class with DIN layout. Good for business correspondence.",
+  "category": "letter",
+  "isPublic": true
+}

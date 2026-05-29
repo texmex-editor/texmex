@@ -1,0 +1,6 @@
+{
+  "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
+  "_comment_parallel": "YDotNet 0.6.0 / yrs has a per-process Heisenbug (multi-branch Y.Doc corruption) that is compounded by concurrent native calls from xUnit's parallel test runner. Disabling parallelism here serialises the YDotNet-touching tests and removes that compound axis. Combined with the GoodModeFact gate (YDotNetBadModeProbe), the suite stays green in both good-mode and bad-mode hosts. See project_notes/YDOTNET_MULTIBRANCH_CORRUPTION.md. Total tests are <100 and finish in <1s either way; the perf hit is negligible.",
+  "parallelizeAssembly": false,
+  "parallelizeTestCollections": false
+}

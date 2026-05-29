@@ -1,0 +1,76 @@
+services:
+  # ── Vite dev server (frontend) ──────────────────────────────
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - '5173:5173'
+    # Tells vite.config.ts to proxy /api and /ws to the `server` Docker
+    # service rather than to localhost (which from inside this container
+    # would mean the container itself → ECONNREFUSED).
+    environment:
+      - RUNNING_IN_DOCKER=true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+
+  # ── PostgreSQL database ────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    ports:
+      - '5432:5432'
+    volumes:
+      - texmex_pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=texmex
+      - POSTGRES_PASSWORD=texmex
+      - POSTGRES_DB=texmex
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U texmex']
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  # ── ASP.NET Core backend (REST + WebSocket relay) ──────────
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    # YDotNet 0.6.0 has a per-process Heisenbug (~5-15% of starts) where
+    # any Y.Doc with 2+ Y.Text branches loses a branch's content. The
+    # server probes for this at startup and exits with code 1 on detection
+    # (see project_notes/YDOTNET_MULTIBRANCH_CORRUPTION.md). Restart-on-failure
+    # lets Docker spin up a fresh process; a new process is overwhelmingly
+    # likely to be in good mode (3 consecutive bad-mode starts: ~1 in 1000).
+    restart: on-failure
+    volumes:
+      - texmex_data:/data
+    environment:
+      - LATEX_COMPILER_URL=http://latex-compiler:9000
+      - DATA_DIR=/data
+      - ALLOWED_ORIGINS=http://localhost:5173
+      - DATABASE_URL=Host=db;Port=5432;Database=texmex;Username=texmex;Password=texmex
+      - ASPNETCORE_ENVIRONMENT=Development
+      - URLS=http://0.0.0.0:3000
+    depends_on:
+      latex-compiler:
+        condition: service_started
+      db:
+        condition: service_healthy
+
+  # ── Isolated TexLive compilation service (internal only) ────
+  latex-compiler:
+    build:
+      context: ./latex-compiler
+      dockerfile: Dockerfile
+    environment:
+      - PORT=9000
+
+volumes:
+  texmex_data:
+  texmex_pgdata:

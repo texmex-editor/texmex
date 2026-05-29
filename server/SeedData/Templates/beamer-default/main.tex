@@ -1,0 +1,69 @@
+\documentclass{beamer}
+
+% Theme selection
+\usetheme{Madrid} % Alternatives: Warsaw, Berlin, Copenhagen, Berkeley, default
+\usecolortheme{default} % Alternatives: albatross, beaver, crane, dove, dolphin
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+
+% Paragraph spacing — a blank line between paragraphs renders as visible
+% vertical space instead of the LaTeX default (first-line indent, no gap).
+% Mostly inert inside frames (slides rarely have multi-paragraph prose),
+% but kept for consistency with the other system templates.
+\usepackage{parskip}
+
+% Title page metadata
+\title{Your Presentation Title}
+% \subtitle{An Optional Subtitle}
+\author{Your Name}
+\institute{Your Institution}
+\date{\today}
+
+\begin{document}
+
+% Title slide
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Outline generated from \section commands
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+% Example frame using \pause for incremental reveals
+\begin{frame}{Key Points}
+  \begin{itemize}
+    \item First point appears immediately
+    \item \pause Second point appears after first click
+    \item \pause Third point appears after second click
+  \end{itemize}
+\end{frame}
+
+\section{Content}
+
+\begin{frame}{Mathematical Example}
+  \begin{block}{Pythagorean Theorem}
+    For any right-angled triangle:
+    \[
+      a^2 + b^2 = c^2
+    \]
+    where \(c\) is the hypotenuse.
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \Huge Thank You! \\
+    \vspace{1em}
+    \large Questions?
+  \end{center}
+\end{frame}
+
+\end{document}

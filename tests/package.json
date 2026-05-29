@@ -1,0 +1,18 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test:ws": "node --test --test-force-exit --test-timeout=30000 ws/*.test.mjs",
+    "test:load": "node --test --test-force-exit --test-timeout=60000 ws/load.perf.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.20.1",
+    "y-websocket": "^3.0.0",
+    "yjs": "^13.6.30"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "slug": "cv-modern",
+  "title": "Modern CV",
+  "description": "A one-page CV using the moderncv package in classic style. Includes scaffolding for education, experience, languages, skills, and interests.",
+  "category": "cv",
+  "isPublic": true
+}

@@ -1,0 +1,52 @@
+\documentclass[11pt,a4paper,sans]{moderncv}
+
+% CV style and color
+\moderncvstyle{classic} % Alternatives: casual, banking, oldstyle, fancy
+\moderncvcolor{blue}    % Alternatives: orange, green, red, purple, grey, black
+
+% Page margins
+\usepackage[scale=0.75]{geometry}
+
+% Paragraph spacing — a blank line between paragraphs renders as visible
+% vertical space instead of the LaTeX default (first-line indent, no gap).
+% Mostly inert here since moderncv entries (\cventry, \cvitem) manage their
+% own spacing, but applies to any free-form prose between sections.
+\usepackage{parskip}
+
+% Personal information
+\name{Your}{Name}
+\title{Software Engineer}
+\address{Street Address}{1234 City}{Country}
+\phone[mobile]{+41 12 345 67 89}
+\email{you@example.com}
+% \homepage{www.example.com}
+% \social[linkedin]{your-linkedin}
+% \social[github]{your-github}
+
+\begin{document}
+\makecvtitle
+
+% Education history
+\section{Education}
+\cventry{2021--2024}{BSc Computer Science}{HSLU}{Lucerne, Switzerland}{}{Bachelor of Science in Computer Science. Relevant coursework: Software Engineering, Algorithms, Distributed Systems.}
+
+% Professional experience
+\section{Experience}
+\subsection{Internships}
+\cventry{2023}{Software Engineering Intern}{Example Company}{City, Country}{}{Worked on backend services in C\#. Implemented features X and Y. Reduced Z by N\%.}
+
+% Spoken languages
+\section{Languages}
+\cvitemwithcomment{German}{Native}{}
+\cvitemwithcomment{English}{Fluent}{C1, IELTS}
+
+% Technical skills
+\section{Computer Skills}
+\cvdoubleitem{Programming}{Python, C\#, TypeScript}{Tools}{Git, Docker, Linux}
+\cvdoubleitem{Frameworks}{.NET, React, Vue}{Other}{REST APIs, SQL}
+
+% Personal interests
+\section{Interests}
+\cvitem{Hobbies}{Open-source software, hiking, photography}
+
+\end{document}
