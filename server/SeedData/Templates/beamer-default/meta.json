@@ -1,0 +1,7 @@
+{
+  "slug": "beamer-default",
+  "title": "Beamer Presentation",
+  "description": "A slide deck using the Beamer Madrid theme. Includes title slide, outline, bullet list, and math example frames.",
+  "category": "presentation",
+  "isPublic": true
+}

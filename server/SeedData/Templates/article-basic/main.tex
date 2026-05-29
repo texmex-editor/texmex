@@ -1,0 +1,89 @@
+% Article template — a standard LaTeX article with sections and a bibliography stub.
+% Compile order is handled automatically by latexmk: pdflatex -> biber -> pdflatex x2
+
+\documentclass[11pt,a4paper]{article}
+
+% Encoding and language
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% Page layout
+\usepackage[margin=1in]{geometry}
+
+% Math, graphics, tables
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+% Quotations and hyperlinks (cleveref must come after hyperref)
+\usepackage{csquotes}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
+\usepackage{cleveref}
+
+% Paragraph spacing — a blank line between paragraphs renders as visible
+% vertical space instead of the LaTeX default (first-line indent, no gap).
+\usepackage{parskip}
+
+% Bibliography via biblatex + biber
+\usepackage[backend=biber, style=numeric]{biblatex}
+\addbibresource{references.bib}
+
+% Document metadata. For multiple authors, use the commented-out form.
+\title{Your Title Here}
+\author{Your Name}
+% \author{First Author\thanks{First Affiliation} \and Second Author\thanks{Second Affiliation}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Write a short summary of your article here. The abstract should briefly state
+the motivation, the approach, and the main findings of the work.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+Start writing your introduction here. You can cite prior work like
+\cite{knuth1984} and use \enquote{language-aware quotation marks} from csquotes.
+Refer back to other sections with \cref{sec:main} for nicer formatting than
+plain \texttt{\textbackslash ref}.
+
+\section{Main Content}
+\label{sec:main}
+
+Add your main sections, equations, and figures. For example:
+\[
+    E = mc^2
+\]
+
+You can also include nice tables using booktabs:
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    Method & Accuracy & Speed \\
+    \midrule
+    Method A & 92\% & Fast \\
+    Method B & 95\% & Slow \\
+    \bottomrule
+  \end{tabular}
+  \caption{Comparison of two example methods.}
+  \label{tab:methods}
+\end{table}
+
+The results in \cref{tab:methods} suggest a trade-off between accuracy and speed.
+
+\section{Conclusion}
+
+Wrap up your article here.
+
+% Bibliography listed at the end of the document
+\printbibliography
+
+\end{document}

@@ -1,0 +1,7 @@
+{
+  "slug": "article-basic",
+  "title": "Basic Article",
+  "description": "A standard LaTeX article with sections, ready to write.",
+  "category": "article",
+  "isPublic": true
+}

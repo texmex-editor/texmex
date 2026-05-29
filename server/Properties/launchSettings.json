@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "server": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

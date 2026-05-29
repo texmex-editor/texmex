@@ -1,0 +1,78 @@
+% Report with Chapters - generic academic report template
+% Compile order is handled automatically by latexmk: pdflatex -> biber -> pdflatex x2
+\documentclass[11pt,a4paper]{report}
+
+% Encoding and language
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% Page layout
+\usepackage[margin=1in]{geometry}
+
+% Graphics, math, tables
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+
+% Quotations and hyperlinks
+\usepackage{csquotes}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
+
+% Paragraph spacing — a blank line between paragraphs renders as visible
+% vertical space instead of the LaTeX default (first-line indent, no gap).
+\usepackage{parskip}
+
+% Bibliography via biblatex + biber
+\usepackage[backend=biber, style=numeric]{biblatex}
+\addbibresource{references.bib}
+
+% Document metadata
+\title{Report Title}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+
+% Title page
+\maketitle
+
+% Short summary of the report's purpose and findings
+\begin{abstract}
+This report presents a structured overview of the topic under study. It outlines the motivation, summarizes the approach, and highlights the main findings. The abstract gives readers a quick sense of what to expect before diving into the chapters.
+\end{abstract}
+
+% Table of contents on its own page
+\tableofcontents
+\newpage
+
+% Opening chapter framing the work
+\chapter{Introduction}
+\section{Background}
+This chapter introduces the topic of the report and motivates why it matters. It situates the work within a broader context and outlines the questions the report aims to answer.
+
+Prior work in the area provides a useful starting point, and several sources have informed the framing adopted here \cite{knuth1984}. The remainder of the report builds on these foundations.
+
+% Core content of the report
+\chapter{Main Content}
+\section{Approach}
+This chapter describes the central ideas and methods used in the report. It walks through the reasoning step by step so that a reader unfamiliar with the topic can follow along.
+
+\section{Discussion}
+Results are interpreted in the light of related findings reported in the literature \cite{turing1950}. Strengths, limitations, and possible extensions are noted.
+
+% Wrap-up and outlook
+\chapter{Conclusion}
+\section{Summary and Future Work}
+This chapter summarizes the contributions of the report and reflects on what was learned. It closes with suggestions for future work that could extend or refine the present results.
+
+% Bibliography listed in the table of contents
+\printbibliography[heading=bibintoc, title={References}]
+
+% Optional supplementary material
+\appendix
+\chapter{Supplementary Material}
+Additional figures, tables, or derivations that support the main text can be placed here.
+
+\end{document}

@@ -1,0 +1,7 @@
+{
+  "slug": "report-default",
+  "title": "Report with Chapters",
+  "description": "An academic report with chapters, abstract, table of contents, and a bibliography. Good for semester projects and longer reports.",
+  "category": "report",
+  "isPublic": true
+}

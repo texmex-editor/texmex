@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="server/server.csproj" />
+  <Project Path="tests/TexMex.UnitTests/TexMex.UnitTests.csproj" />
+</Solution>

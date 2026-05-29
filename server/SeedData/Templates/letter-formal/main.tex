@@ -1,0 +1,45 @@
+\documentclass[a4paper, fromalign=right, fromphone=true, fromemail=true]{scrlttr2}
+
+% DIN layout follows Swiss/European letter conventions
+\LoadLetterOption{DIN}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% Paragraph spacing — a blank line between paragraphs renders as visible
+% vertical space instead of the LaTeX default (first-line indent, no gap).
+\usepackage{parskip}
+
+% Sender identity shown in the letterhead
+\setkomavar{fromname}{Your Name}
+\setkomavar{fromaddress}{Street Address \\ 1234 City \\ Country}
+
+% Sender contact details printed alongside the address
+\setkomavar{fromphone}{+41 12 345 67 89}
+\setkomavar{fromemail}{you@example.com}
+
+\begin{document}
+
+% Recipient block appears in the address window
+\begin{letter}{Recipient Name \\ Recipient Street \\ 1234 City \\ Country}
+
+% Subject line shown above the salutation
+\setkomavar{subject}{Subject of your letter}
+
+\opening{Dear Sir or Madam,}
+
+I am writing to you regarding the matter we briefly discussed last week. Please find below the details and supporting information that should help clarify the situation and move things forward.
+
+Should you require any further information, do not hesitate to contact me at your convenience. Thank you for your attention to this matter.
+
+\closing{Yours sincerely,}
+
+% Optional extras: postscript, enclosures, carbon copies
+% \ps{P.S.: ...}
+% \encl{Enclosure 1, Enclosure 2}
+% \cc{Other recipient}
+
+\end{letter}
+
+\end{document}

@@ -1,0 +1,30 @@
+# Infrastructure-only compose file for local backend development.
+# Usage: docker compose -f docker-compose.infra.yml up
+#   or:  make infra
+#
+# Starts only the database and LaTeX compiler with ports exposed to the host.
+# Run the C# server locally with `dotnet run` (or your IDE) for debugging.
+
+services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - '5432:5432'
+    volumes:
+      - texmex_pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=texmex
+      - POSTGRES_PASSWORD=texmex
+      - POSTGRES_DB=texmex
+
+  latex-compiler:
+    build:
+      context: ./latex-compiler
+      dockerfile: Dockerfile
+    ports:
+      - '9000:9000'
+    environment:
+      - PORT=9000
+
+volumes:
+  texmex_pgdata:
