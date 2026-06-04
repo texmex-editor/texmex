@@ -14,6 +14,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y \
     texlive-latex-base \
     texlive-latex-recommended \
+    texlive-lang-german \
     texlive-latex-extra \
     texlive-fonts-recommended \
     texlive-fonts-extra \
