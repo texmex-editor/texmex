@@ -11,7 +11,7 @@ FROM debian:bookworm-slim
 # texlive-bibtex-extra + biber → biblatex with biber backend (used by report-default)
 # latexmk → orchestrator that handles multi-pass compiles (TOC, refs, citations)
 # ghostscript → ps2pdf for latex -> dvips -> PDF workflows
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
     texlive-latex-base \
     texlive-latex-recommended \
     texlive-latex-extra \
