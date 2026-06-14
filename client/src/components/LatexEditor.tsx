@@ -170,24 +170,20 @@ export const LatexEditor: React.FC<LatexEditorProps> = ({
     onEditorReady?.(setup);
 
     return () => {
-      // Cleanup on unmount
+      // Cleanup on unmount or core change
       editorSetupRef.current?.cleanup?.();
       awarenessUsersChangeRef.current?.([], '');
+      editorSetupRef.current = null;
     };
-  }, [
-    docId,
-    wsUrl,
-    collaborative,
-    initialText,
-    onStatusChange,
-    isAnonymousSession,
-    initialYjsState,
-    awarenessUser,
-  ]);
+  }, [docId, wsUrl, collaborative, isAnonymousSession]);
 
   useEffect(() => {
     editorSetupRef.current?.setReadOnly?.(Boolean(isReadOnly));
   }, [isReadOnly]);
+
+  useEffect(() => {
+    editorSetupRef.current?.setAwarenessUser?.(awarenessUser);
+  }, [awarenessUser]);
 
   useEffect(() => {
     if (!collaborative) return;
