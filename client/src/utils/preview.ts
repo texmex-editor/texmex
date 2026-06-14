@@ -66,7 +66,12 @@ export class PdfPreviewController {
   // Captured before each re-load so the recompile flow can put the user back
   // where they were. Null on the very first load (no prior state to keep).
   private pendingRestore:
-    | { scrollTop: number; pageNumber: number; scaleValue: string }
+    | {
+        scrollTop: number;
+        scrollLeft: number;
+        pageNumber: number;
+        scaleValue: string;
+      }
     | null = null;
 
   constructor(container: HTMLDivElement, viewer: HTMLDivElement) {
@@ -113,6 +118,10 @@ export class PdfPreviewController {
             restore.scrollTop,
             this.container.scrollHeight,
           );
+          this.container.scrollLeft = Math.min(
+            restore.scrollLeft,
+            this.container.scrollWidth,
+          );
         });
       } else {
         this.viewer.currentScaleValue = DEFAULT_SCALE;
@@ -129,6 +138,7 @@ export class PdfPreviewController {
     if (this.currentDoc) {
       this.pendingRestore = {
         scrollTop: this.container.scrollTop,
+        scrollLeft: this.container.scrollLeft,
         pageNumber: this.viewer.currentPageNumber,
         scaleValue: String(this.viewer.currentScaleValue || ''),
       };
