@@ -253,13 +253,17 @@ export class EditorSession {
   };
 
   handleSnippetInsert = (insertion: SnippetInsertion) => {
-    const { activeEditorSetupRef, mainEditorSetupRef } = this.context;
+    const { activeEditorSetupRef, mainEditorSetupRef, isMainTabActive } = this.context;
     const editor = activeEditorSetupRef.current?.editor;
     if (!editor) {
       return;
     }
 
-    applySnippetInsertion(mainEditorSetupRef.current?.editor, editor, insertion);
+    applySnippetInsertion(
+      isMainTabActive ? mainEditorSetupRef.current?.editor : null,
+      editor,
+      insertion,
+    );
   };
 
   handleOpenFormulaDialog = () => {
@@ -502,7 +506,7 @@ export class EditorSession {
     const insertion: SnippetInsertion =
       parseSnippetInsertion(snippet) ?? { text: snippet };
     applySnippetInsertion(
-      mainEditorSetupRef.current?.editor,
+      isMainTabActive ? mainEditorSetupRef.current?.editor : null,
       editor,
       insertion,
       dropPosition ?? undefined,

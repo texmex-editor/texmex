@@ -81,20 +81,6 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
     setStatusClass(cls);
   }, []);
 
-  const handleAddLatexPackage = useCallback((packageName: string) => {
-    const editor = mainEditorSetupRef.current?.editor;
-    if (!editor) {
-      return;
-    }
-
-    const normalized = packageName.trim();
-    if (!normalized) {
-      return;
-    }
-
-    createEditorService(editor).ensureLatexPackage(normalized);
-  }, []);
-
   const handleSnippetSidebarToggle = useCallback(() => {
     if (isSnippetSidebarCollapsed) {
       snippetSidebarPanelRef.current?.expand?.();
@@ -197,6 +183,26 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
     hasApiDocumentId,
   });
 
+  const handleAddLatexPackage = useCallback(
+    (packageName: string) => {
+      if (!isMainTabActive) {
+        return;
+      }
+      const editor = mainEditorSetupRef.current?.editor;
+      if (!editor) {
+        return;
+      }
+
+      const normalized = packageName.trim();
+      if (!normalized) {
+        return;
+      }
+
+      createEditorService(editor).ensureLatexPackage(normalized);
+    },
+    [isMainTabActive],
+  );
+
   const activeFileCategory = activeFileTab?.category ?? null;
   const isActiveFileCollaborative = activeFileTab
     ? isCollaborativeCategory(activeFileTab.category, activeFileTab.isCollaborative)
@@ -232,6 +238,7 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
     documentTitle,
     hasApiDocumentId,
     canEdit: !isViewer,
+    isMainTabActive,
     editorSetupRef: mainEditorSetupRef,
     setStatusState,
     onAddPackage: handleAddLatexPackage,

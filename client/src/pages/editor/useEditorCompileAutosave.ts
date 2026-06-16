@@ -49,6 +49,7 @@ type UseEditorCompileAutosaveArgs = {
   documentTitle?: string;
   hasApiDocumentId: boolean;
   canEdit: boolean;
+  isMainTabActive: boolean;
   editorSetupRef: MutableRefObject<EditorSetup | null>;
   setStatusState: (text: string, cls: string) => void;
   onAddPackage?: (packageName: string) => void;
@@ -59,6 +60,7 @@ export function useEditorCompileAutosave({
   documentTitle,
   hasApiDocumentId,
   canEdit,
+  isMainTabActive,
   editorSetupRef,
   setStatusState,
   onAddPackage,
@@ -132,6 +134,10 @@ export function useEditorCompileAutosave({
   }, [isCompilingOn]);
 
   const ensureRequiredPackages = useCallback(() => {
+    if (!isMainTabActive) {
+      return false;
+    }
+
     const editor = editorSetupRef.current?.editor;
     if (!editor) {
       return false;
@@ -145,7 +151,7 @@ export function useEditorCompileAutosave({
     }
 
     return service.ensureLatexPackages(requiredPackages);
-  }, [editorSetupRef]);
+  }, [editorSetupRef, isMainTabActive]);
 
   const autosaveMutation = useMutation({
     ...putApiDocumentsByIdStateMutation(),
