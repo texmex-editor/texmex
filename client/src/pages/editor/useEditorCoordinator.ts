@@ -13,6 +13,7 @@ import {createHandleApplyDocumentSettings} from './documentSettings';
 import {
   MAIN_TAB_KEY,
   isPreviewableImageFile,
+  buildImageFigureSnippet,
 } from './fileEditorUtils';
 import type * as monaco from 'monaco-editor';
 import {useEditorCompileAutosave} from './useEditorCompileAutosave';
@@ -49,6 +50,9 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
   >({});
   const [replaceBanner, setReplaceBanner] =
     useState<ReplaceBannerState | null>(null);
+  const [clipboardImageFile, setClipboardImageFile] = useState<File | null>(null);
+  const [isPasteImageDialogOpen, setIsPasteImageDialogOpen] = useState(false);
+  const [isPasteUploading, setIsPasteUploading] = useState(false);
   const [documentText, setDocumentText] = useState<string>('');
   const [runtimeRole, setRuntimeRole] = useState<DocumentRole | null>(null);
   const [editorSetup, setEditorSetup] = useState<EditorSetup | null>(null);
@@ -557,6 +561,113 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
     mainEditorSetupRef,
   ]);
 
+  useEffect(() => {
+    const handleGlobalPaste = (event: ClipboardEvent) => {
+      console.log('Antigravity: paste event captured', event);
+      const activeSetup = activeEditorSetupRef.current;
+      if (!activeSetup || !activeSetup.editor) {
+        console.log('Antigravity: no active editor setup found');
+        return;
+      }
+
+      const editor = activeSetup.editor;
+      const domNode = editor.getDomNode();
+      const hasFocus = editor.hasTextFocus() || (domNode && domNode.contains(document.activeElement));
+      console.log('Antigravity: editor focus state:', hasFocus, 'activeElement:', document.activeElement);
+      if (!hasFocus) return;
+
+      const items = event.clipboardData?.items;
+      if (!items) {
+        console.log('Antigravity: no items in clipboardData');
+        return;
+      }
+
+      console.log('Antigravity: clipboard items:', Array.from(items).map(i => ({ type: i.type, kind: i.kind })));
+
+      let imageFile: File | null = null;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            imageFile = file;
+            break;
+          }
+        }
+      }
+
+      if (!imageFile) {
+        console.log('Antigravity: no image found in paste event');
+        return;
+      }
+
+      console.log('Antigravity: image file found, opening modal', imageFile.name, imageFile.type, imageFile.size);
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (!canEditFiles) {
+        toast.error('You do not have permission to edit files in this document.');
+        return;
+      }
+
+      if (!hasApiDocumentId) {
+        toast.error('Save this document first to paste images.');
+        return;
+      }
+
+      setClipboardImageFile(imageFile);
+      setIsPasteImageDialogOpen(true);
+    };
+
+    window.addEventListener('paste', handleGlobalPaste, true);
+    return () => {
+      window.removeEventListener('paste', handleGlobalPaste, true);
+    };
+  }, [canEditFiles, hasApiDocumentId]);
+
+  const handlePasteImageDialogSubmit = useCallback(
+    async (folder: string, filename: string) => {
+      if (!clipboardImageFile) return;
+      setIsPasteUploading(true);
+      try {
+        const fullPath = folder ? `${folder}/${filename}` : filename;
+        await documentFiles.uploadFile(docId, clipboardImageFile, fullPath);
+
+        const activeSetup = activeEditorSetupRef.current;
+        const editor = activeSetup?.editor;
+        if (editor) {
+          if (isMainTabActive) {
+            editorAdapter.ensureLatexPackage(editor, 'graphicx');
+          }
+          const latexSnippet = buildImageFigureSnippet(fullPath);
+          editorAdapter.insertSnippet(editor, latexSnippet, null);
+        }
+
+        // Refresh file list by refetching filesQuery
+        await queryClient.invalidateQueries({
+          queryKey: fileListQueryKey,
+        });
+
+        toast.success(`Successfully uploaded and inserted "${filename}"`);
+        setIsPasteImageDialogOpen(false);
+        setClipboardImageFile(null);
+      } catch (err) {
+        console.error('handlePasteImageDialogSubmit error', err);
+        toast.error('Failed to upload image. Please try again.');
+      } finally {
+        setIsPasteUploading(false);
+      }
+    },
+    [
+      clipboardImageFile,
+      docId,
+      isMainTabActive,
+      documentFiles,
+      editorAdapter,
+      queryClient,
+      fileListQueryKey,
+    ],
+  );
+
   return {
     activeFilePreviewUrl,
     activeFileTab,
@@ -653,5 +764,11 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
     status,
     statusClass,
     handleCloseReplaceBanner,
+    files,
+    clipboardImageFile,
+    isPasteImageDialogOpen,
+    setIsPasteImageDialogOpen,
+    isPasteUploading,
+    handlePasteImageDialogSubmit,
   };
 }

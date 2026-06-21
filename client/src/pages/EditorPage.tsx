@@ -1,4 +1,5 @@
 import { FormulaEditDialog } from '@/components/FormulaEditDialog';
+import { PasteImageDialog } from '@/components/PasteImageDialog';
 import { Button } from '@/components/ui/button';
 import {
   ResizableHandle,
@@ -120,6 +121,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ user, onLogout, onUserUpdated }
     handleCloseReplaceBanner,
     handleFileEvent,
     handleVersionRestored,
+    files,
+    clipboardImageFile,
+    isPasteImageDialogOpen,
+    setIsPasteImageDialogOpen,
+    isPasteUploading,
+    handlePasteImageDialogSubmit,
   } = useEditorCoordinator({ user });
 
   return (
@@ -255,6 +262,17 @@ const EditorPage: React.FC<EditorPageProps> = ({ user, onLogout, onUserUpdated }
                       formula={activeFormula}
                       onOpenChange={handleFormulaDialogChange}
                       onSave={handleSaveFormula}
+                    />
+
+                    <PasteImageDialog
+                      open={isPasteImageDialogOpen}
+                      busy={isPasteUploading}
+                      imageFile={clipboardImageFile}
+                      existingFiles={files}
+                      onSubmit={handlePasteImageDialogSubmit}
+                      onClose={() => {
+                        setIsPasteImageDialogOpen(false);
+                      }}
                     />
 
                     {isLoadingInitialState ? (
