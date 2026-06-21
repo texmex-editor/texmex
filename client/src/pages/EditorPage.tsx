@@ -61,6 +61,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ user, onLogout, onUserUpdated }
     handleCompile,
     handleExportPdf,
     handleExportProject,
+    handleExportTex,
     handleFileDocChange,
     handleFileDrop,
     handleFileEditorReady,
@@ -398,6 +399,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ user, onLogout, onUserUpdated }
                   onErrorPanelReady={handleErrorPanelReady}
                   onExportPdf={handleExportPdf}
                   onExportProject={handleExportProject}
+                  onExportTex={handleExportTex}
                   onCompile={handleCompile}
                   canExportPdf={canExportPdf}
                   isCompilingOn={isCompilingOn}

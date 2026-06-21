@@ -5,6 +5,7 @@ import { PdfZoomDropdown } from './PdfZoomDropdown';
 import {
   ChevronDown,
   FileArchive,
+  FileCode2,
   FileDown,
   Play,
 } from 'lucide-react';
@@ -20,6 +21,7 @@ interface PDFPreviewProps {
   onErrorPanelReady?: (panel: HTMLElement) => void;
   onExportPdf?: () => void;
   onExportProject?: () => void;
+  onExportTex?: () => void;
   onCompile?: () => void;
   canExportPdf?: boolean;
   isCompilingOn?: boolean;
@@ -41,6 +43,7 @@ export const PDFPreview: React.FC<PDFPreviewProps> = ({
   onErrorPanelReady,
   onExportPdf,
   onExportProject,
+  onExportTex,
   onCompile,
   canExportPdf,
   isCompilingOn,
@@ -155,6 +158,17 @@ export const PDFPreview: React.FC<PDFPreviewProps> = ({
                 >
                   <FileArchive className="h-4 w-4" />
                   <span>Export project (.zip)</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-muted"
+                  onClick={() => {
+                    onExportTex?.();
+                    setShowExportOptions(false);
+                  }}
+                >
+                  <FileCode2 className="h-4 w-4 text-sky-500" />
+                  <span>Export current .tex</span>
                 </button>
               </div>
             )}

@@ -526,6 +526,37 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
     [editingUsersByPath],
   );
 
+  const handleExportTex = useCallback(() => {
+    const isTex = isMainTabActive || Boolean(activeFileTab?.filename && activeFileTab.filename.toLowerCase().endsWith('.tex'));
+    const setup = isTex ? activeEditorSetupRef.current : mainEditorSetupRef.current;
+    const filename = isTex
+      ? (isMainTabActive ? entrypointFilename : activeFileTab?.filename ?? 'main.tex')
+      : entrypointFilename;
+
+    const editor = setup?.editor;
+    if (!editor) {
+      toast.error('No editor content available to export.');
+      return;
+    }
+
+    const text = editor.getValue() ?? '';
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }, [
+    isMainTabActive,
+    activeFileTab,
+    entrypointFilename,
+    activeEditorSetupRef,
+    mainEditorSetupRef,
+  ]);
+
   return {
     activeFilePreviewUrl,
     activeFileTab,
@@ -560,6 +591,7 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
     handleErrorPanelReady,
     handleExportPdf,
     handleExportProject,
+    handleExportTex,
     handleCompile,
     handleFileDocChange,
     handleFileEvent,
