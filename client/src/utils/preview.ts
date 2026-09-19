@@ -1,3 +1,5 @@
+import { postApiDocumentsByIdCompile } from '@/client';
+import { getApiErrorMessage } from '@/utils/apiError';
 import * as pdfjs from 'pdfjs-dist';
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import {
@@ -5,10 +7,8 @@ import {
   PDFLinkService,
   PDFViewer,
 } from 'pdfjs-dist/web/pdf_viewer.mjs';
-import { postApiDocumentsByIdCompile } from '@/client';
-import { getApiErrorMessage } from '@/utils/apiError';
 
-pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+pdfjs.GlobalWorkerOptions.workerSrc = `${workerSrc}?v=2`;
 
 // Standard fonts + cmaps are copied to these public paths by the
 // viteStaticCopy plugin (see vite.config.ts). Without them PDF.js falls back
