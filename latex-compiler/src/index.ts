@@ -44,6 +44,15 @@ function needsDvipsPipeline(source: string): boolean {
   return dvipsPackagePattern.test(source);
 }
 
+// fontspec can only run under XeTeX or LuaTeX. Prefer XeLaTeX because it is
+// available in the compiler image and handles installed and uploaded OpenType
+// fonts without requiring a document-level compiler setting.
+function needsXeLatex(source: string): boolean {
+  return /\\usepackage(?:\[[^\]]*])?\{[^}]*\bfontspec\b[^}]*\}/m.test(
+    source,
+  );
+}
+
 function hasPdflatexFriendlyGraphicAssets(
   files: CompileFile[] | undefined,
 ): boolean {
@@ -149,6 +158,23 @@ async function compileWithPdfLatex(
   await runCommand(cmd, workDir);
 }
 
+async function compileWithXeLatex(
+  texFile: string,
+  workDir: string,
+): Promise<void> {
+  const cmd = [
+    "latexmk",
+    "-xelatex",
+    "-interaction=nonstopmode",
+    "-no-shell-escape",
+    "-halt-on-error",
+    `-outdir=${quote(workDir)}`,
+    quote(texFile),
+  ].join(" ");
+
+  await runCommand(cmd, workDir);
+}
+
 async function compileWithDvips(
   texFile: string,
   workDir: string,
@@ -236,10 +262,13 @@ app.post("/compile", async (req: Request, res: Response) => {
     writeFileSync(texFile, compileSource, "utf-8");
     const includeDirs = collectIncludeDirectories(workDir, files);
 
+    const prefersXeLatex = needsXeLatex(source);
     const prefersDvips = needsDvipsPipeline(source);
     const hasPdflatexGraphics = hasPdflatexFriendlyGraphicAssets(files);
 
-    if (prefersDvips && !hasPdflatexGraphics) {
+    if (prefersXeLatex) {
+      await compileWithXeLatex(texFile, workDir);
+    } else if (prefersDvips && !hasPdflatexGraphics) {
       await compileWithDvips(texFile, workDir);
     } else {
       try {

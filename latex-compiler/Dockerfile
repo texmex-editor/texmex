@@ -8,6 +8,7 @@ FROM debian:bookworm-slim
 # texlive-fonts-extra → fonts used by moderncv styles (e.g., FontAwesome)
 # texlive-humanities → lingmacros/tree-dvips and related linguistics packages
 # texlive-pictures → tikz/pgf used by beamer themes and many other packages
+# texlive-xetex → xelatex and fontspec support for system/OpenType fonts
 # texlive-bibtex-extra + biber → biblatex with biber backend (used by report-default)
 # latexmk → orchestrator that handles multi-pass compiles (TOC, refs, citations)
 # ghostscript → ps2pdf for latex -> dvips -> PDF workflows
@@ -20,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     texlive-fonts-extra \
     texlive-humanities \
     texlive-pictures \
+    texlive-xetex \
     texlive-bibtex-extra \
     biber \
     latexmk \
