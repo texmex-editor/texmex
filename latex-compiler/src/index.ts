@@ -44,13 +44,29 @@ function needsDvipsPipeline(source: string): boolean {
   return dvipsPackagePattern.test(source);
 }
 
-// fontspec can only run under XeTeX or LuaTeX. Prefer XeLaTeX because it is
+// fontspec can only run under XeTeX or LuaTeX. It may be required by the
+// entrypoint itself or by an uploaded .tex/.sty/.cls file, so inspect all
+// text sources available to the compiler. Prefer XeLaTeX because it is
 // available in the compiler image and handles installed and uploaded OpenType
 // fonts without requiring a document-level compiler setting.
-function needsXeLatex(source: string): boolean {
-  return /\\usepackage(?:\[[^\]]*])?\{[^}]*\bfontspec\b[^}]*\}/m.test(
-    source,
-  );
+function needsXeLatex(source: string, files: CompileFile[] | undefined): boolean {
+  const fontspecPattern =
+    /\\(?:usepackage|RequirePackage)(?:\[[^\]]*])?\{[^}]*\bfontspec\b[^}]*\}|\\(?:setmainfont|setsansfont|setmonofont|newfontfamily|newfontface)\b/m;
+
+  if (fontspecPattern.test(source)) return true;
+  if (!files) return false;
+
+  return files.some((file) => {
+    if (
+      typeof file.filename !== "string" ||
+      typeof file.data !== "string" ||
+      !/\.(?:tex|sty|cls)$/i.test(file.filename)
+    ) {
+      return false;
+    }
+
+    return fontspecPattern.test(Buffer.from(file.data, "base64").toString("utf-8"));
+  });
 }
 
 function hasPdflatexFriendlyGraphicAssets(
@@ -158,6 +174,22 @@ async function compileWithPdfLatex(
   await runCommand(cmd, workDir);
 }
 
+// Custom classes and packages (for example unicode-math) can load fontspec
+// indirectly, which is not reliably discoverable from the uploaded source.
+// The package error is unambiguous, so retry once with XeLaTeX in that case.
+function shouldTryXeLatexFallback(error: unknown): boolean {
+  const execError = error as { stdout?: unknown; stderr?: unknown };
+  const errorText = [error, execError?.stdout, execError?.stderr]
+    .filter((value) => value !== undefined)
+    .map(String)
+    .join("\n");
+
+  return (
+    errorText.includes("Package fontspec Error") ||
+    errorText.includes("cannot-use-pdftex")
+  );
+}
+
 async function compileWithXeLatex(
   texFile: string,
   workDir: string,
@@ -262,11 +294,12 @@ app.post("/compile", async (req: Request, res: Response) => {
     writeFileSync(texFile, compileSource, "utf-8");
     const includeDirs = collectIncludeDirectories(workDir, files);
 
-    const prefersXeLatex = needsXeLatex(source);
+    const prefersXeLatex = needsXeLatex(source, files);
     const prefersDvips = needsDvipsPipeline(source);
     const hasPdflatexGraphics = hasPdflatexFriendlyGraphicAssets(files);
 
     if (prefersXeLatex) {
+      console.log("[compiler] Selected XeLaTeX for fontspec document");
       await compileWithXeLatex(texFile, workDir);
     } else if (prefersDvips && !hasPdflatexGraphics) {
       await compileWithDvips(texFile, workDir);
@@ -274,7 +307,10 @@ app.post("/compile", async (req: Request, res: Response) => {
       try {
         await compileWithPdfLatex(texFile, workDir);
       } catch (pdfLatexError: unknown) {
-        if (shouldTryDvipsFallback(source, files, pdfLatexError)) {
+        if (shouldTryXeLatexFallback(pdfLatexError)) {
+          console.log("[compiler] Retrying with XeLaTeX after fontspec error");
+          await compileWithXeLatex(texFile, workDir);
+        } else if (shouldTryDvipsFallback(source, files, pdfLatexError)) {
           await compileWithDvips(texFile, workDir);
         } else {
           throw pdfLatexError;
