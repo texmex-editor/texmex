@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM node:24.22.1-bookworm-slim
 
 # TexLive on Debian uses proper sub-package names.
 # texlive-latex-base  → pdflatex binary + article/book/report classes + amsmath
@@ -26,15 +26,13 @@ RUN apt-get update && apt-get install -y \
     biber \
     latexmk \
     ghostscript \
-    nodejs \
-    npm \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package.json package-lock.json .npmrc ./
 # Install ALL deps first (tsc from devDependencies is needed for the build step)
-RUN npm install
+RUN npm ci
 
 COPY tsconfig.json ./
 COPY src/ ./src/

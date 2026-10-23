@@ -1,6 +1,9 @@
 {
   "name": "texmex-client",
   "version": "1.0.0",
+  "engines": {
+    "node": "^24.22.1"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

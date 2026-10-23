@@ -18,7 +18,7 @@ A web-based collaborative LaTeX editor with real-time multi-user editing (Yjs/CR
 - Production: http://localhost:${HTTP_PORT:-80} (after the prod compose is up)
 
 ## Requirements
-- Node.js 20+ and npm (Vite 5 and the openapi-ts generator both require 20).
+- Node.js 24 LTS, version 24.22.1 or newer within 24.x, and npm (`nvm install && nvm use` from the repository root).
 - .NET SDK 10 (server target framework).
 - Docker + Docker Compose v2 (full-stack dev and the LaTeX compiler container).
 

@@ -17,7 +17,29 @@ Optional nutzt ihr einen **einzigen Hostnamen** (z. B. `https://texmex.example
 - Docker (für Server, DB, LaTeX-Compiler) oder vergleichbare Orchestrierung.
 - PostgreSQL 16 (kompatibel mit dem Projekt; Schema per EF-Migration beim Serverstart).
 - TLS-Zertifikat (Let’s Encrypt oder internes PKI).
-- Node.js 20+ **nur zum Bauen** des Frontends (`npm ci && npm run build` im Verzeichnis `client/`), falls ihr keinen separaten Build-Container nutzt.
+- Node.js 24 LTS ab **24.22.1** (innerhalb 24.x) **nur zum Bauen** des Frontends (`npm ci && npm run build` im Verzeichnis `client/`), falls ihr keinen separaten Build-Container nutzt. Die Version steht auch in `.nvmrc`.
+
+### Node-Sicherheitsupdate vom Oktober 2026
+
+Die Node-Images für Entwicklung, Frontend-Build und LaTeX-Compiler sind auf
+**24.22.1** festgelegt. Diese Version enthält die Korrekturen aus der
+[Node-Sicherheitsmeldung vom 21. Oktober 2026](https://nodejs.org/en/blog/vulnerability/october-2026-security-releases).
+Der Compiler verwendet das offizielle Node-Image auf Debian Bookworm statt der
+Node-Pakete aus Debian. `npm ci` prüft in allen drei Node-Paketen die
+Mindestversion über `engine-strict=true`.
+
+Bestehende Container übernehmen die neue Laufzeit erst nach Neubau und Austausch.
+Für das Production-Compose (mit der bereits eingerichteten Env-Datei):
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.production build --pull web latex-compiler
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --no-deps web latex-compiler
+docker compose -f docker-compose.prod.yml --env-file .env.production exec latex-compiler node --version
+```
+
+Die Versionsprüfung muss `v24.22.1` ausgeben. Für die Entwicklungsumgebung:
+`docker compose build --pull client latex-compiler` und anschließend
+`docker compose up -d --no-deps client latex-compiler`.
 
 ## Umgebungsvariablen (Backend)
 

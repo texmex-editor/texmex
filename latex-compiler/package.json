@@ -1,6 +1,9 @@
 {
   "name": "latex-compiler",
   "version": "1.0.0",
+  "engines": {
+    "node": "^24.22.1"
+  },
   "description": "Isolated TexLive HTTP compilation service",
   "main": "dist/index.js",
   "scripts": {
