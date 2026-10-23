@@ -259,3 +259,127 @@ export function applyColor(
   );
   editor.focus();
 }
+
+export interface DefinedColor {
+  name: string;
+  model: string;
+  spec: string;
+  hex: string;
+}
+
+/**
+ * Parses the document for \definecolor{name}{model}{spec}
+ */
+export function getDefinedColors(content: string): DefinedColor[] {
+  const regex = /\\definecolor\{([^}]+)\}\{([^}]+)\}\{([^}]+)\}/g;
+  const colors: DefinedColor[] = [];
+  let match;
+
+  while ((match = regex.exec(content)) !== null) {
+    const name = match[1];
+    const model = match[2];
+    const spec = match[3];
+    const hex = convertToHex(model, spec);
+    colors.push({ name, model, spec, hex });
+  }
+
+  return colors;
+}
+
+function convertToHex(model: string, spec: string): string {
+  try {
+    if (model === 'HTML') return `#${spec}`;
+    if (model === 'rgb') {
+      const parts = spec.split(',').map((n) => parseFloat(n.trim()));
+      if (parts.length === 3) {
+        const [r, g, b] = parts.map((n) => Math.round(n * 255));
+        return rgbToHex(r, g, b);
+      }
+    }
+    if (model === 'RGB') {
+      const parts = spec.split(',').map((n) => parseInt(n.trim()));
+      if (parts.length === 3) {
+        const [r, g, b] = parts;
+        return rgbToHex(r, g, b);
+      }
+    }
+    if (model === 'gray') {
+      const g = Math.round(parseFloat(spec.trim()) * 255);
+      return rgbToHex(g, g, g);
+    }
+  } catch (e) {
+    console.error('Error converting color to hex:', e);
+  }
+  return '#000000'; // Default
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const clamp = (n: number) => Math.max(0, Math.min(255, n));
+  return (
+    '#' +
+    ((1 << 24) + (clamp(r) << 16) + (clamp(g) << 8) + clamp(b))
+      .toString(16)
+      .slice(1)
+      .toUpperCase()
+  );
+}
+
+/**
+ * Inserts a \definecolor command into the document.
+ */
+export function defineNewColor(
+  editor: monaco.editor.IStandaloneCodeEditor,
+  name: string,
+  model: string,
+  spec: string,
+): void {
+  const modelContent = editor.getModel();
+  if (!modelContent) return;
+
+  const content = modelContent.getValue();
+  const defineColorRegex = /\\definecolor\{[^}]+\}\{[^}]+\}\{[^}]+\}/g;
+  let lastMatchEnd = -1;
+  let match;
+
+  while ((match = defineColorRegex.exec(content)) !== null) {
+    lastMatchEnd = match.index + match[0].length;
+  }
+
+  let insertPos: monaco.IPosition;
+  let textToInsert = `\\definecolor{${name}}{${model}}{${spec}}`;
+
+  if (lastMatchEnd !== -1) {
+    // Insert after the last definecolor
+    insertPos = modelContent.getPositionAt(lastMatchEnd);
+    textToInsert = '\n' + textToInsert;
+  } else {
+    // Find documentclass or xcolor usepackage
+    const preambleRegex = /\\documentclass.*|\\usepackage.*\{xcolor\}.*/g;
+    let lastPreambleEnd = -1;
+    while ((match = preambleRegex.exec(content)) !== null) {
+      lastPreambleEnd = match.index + match[0].length;
+    }
+
+    if (lastPreambleEnd !== -1) {
+      insertPos = modelContent.getPositionAt(lastPreambleEnd);
+      textToInsert = '\n' + textToInsert;
+    } else {
+      // Just at the beginning
+      insertPos = { lineNumber: 1, column: 1 };
+      textToInsert = textToInsert + '\n';
+    }
+  }
+
+  editor.executeEdits('format.defineColor', [
+    {
+      range: new monaco.Range(
+        insertPos.lineNumber,
+        insertPos.column,
+        insertPos.lineNumber,
+        insertPos.column,
+      ),
+      text: textToInsert,
+      forceMoveMarkers: true,
+    },
+  ]);
+}

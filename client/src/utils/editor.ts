@@ -25,6 +25,7 @@ export interface EditorSetup {
   binding?: MonacoBinding;
   setReadOnly?: (isReadOnly: boolean) => void;
   setActiveFileId?: (fileId: string) => void;
+  setAwarenessUser?: (user: AwarenessUser | undefined) => void;
   lockCollaboration?: () => void;
   unlockCollaboration?: () => void;
   saveViewState?: () => monaco.editor.ICodeEditorViewState | null;
@@ -339,7 +340,11 @@ export function createEditor(
       model.dispose();
     };
 
-    return { editor, model, setReadOnly, saveViewState, restoreViewState, cleanup };
+    const setAwarenessUser = () => {
+      /* no-op for local editor */
+    };
+
+    return { editor, model, setReadOnly, setAwarenessUser, saveViewState, restoreViewState, cleanup };
   }
 
   const ydoc = new Y.Doc();
@@ -531,18 +536,20 @@ export function createEditor(
 
   installSocketHandlers();
 
-  // Set awareness (shows your cursor to others)
-  const awarenessName =
-    awarenessUser?.displayName?.trim() ||
-    awarenessUser?.email?.trim() ||
-    'Anonymous';
-  const colorSeed = awarenessUser?.id || awarenessUser?.email || awarenessName;
+  const setAwarenessUser = (nextUser: AwarenessUser | undefined) => {
+    const name =
+      nextUser?.displayName?.trim() || nextUser?.email?.trim() || 'Anonymous';
+    const seed = nextUser?.id || nextUser?.email || name;
 
-  provider.awareness.setLocalStateField('user', {
-    name: awarenessName,
-    color: getDeterministicColor(colorSeed, 1),
-    colorLight: getDeterministicColor(colorSeed, 0.25),
-  });
+    provider.awareness.setLocalStateField('user', {
+      name,
+      color: getDeterministicColor(seed, 1),
+      colorLight: getDeterministicColor(seed, 0.25),
+    });
+  };
+
+  setAwarenessUser(awarenessUser);
+
   if (activeFileIdRef.current) {
     provider.awareness.setLocalStateField('activeFile', activeFileIdRef.current);
   }
@@ -727,6 +734,7 @@ export function createEditor(
       binding,
       setReadOnly,
       setActiveFileId,
+      setAwarenessUser,
       lockCollaboration,
       unlockCollaboration,
       cleanup,
@@ -807,6 +815,7 @@ export function createEditor(
     binding,
     setReadOnly,
     setActiveFileId,
+    setAwarenessUser,
     lockCollaboration,
     unlockCollaboration,
     saveViewState,

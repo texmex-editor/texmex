@@ -26,7 +26,11 @@ export function createDocumentFilesAdapter(): DocumentFilesAdapter {
       try {
         // The generated client supports form-data via formDataBodySerializer and
         // expects body: { file: File }
-        await postApiDocumentsByIdFiles({ path: { id }, body: { file }, throwOnError: true });
+        await postApiDocumentsByIdFiles({
+          path: { id },
+          body: { file, filename } as any,
+          throwOnError: true,
+        });
       } catch (err) {
         console.error('createDocumentFilesAdapter.uploadFile error', err);
         throw err;

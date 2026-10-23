@@ -10,6 +10,18 @@ export const LATEX_PACKAGE_RULES = [
     name: 'xcolor',
     detect: /\\textcolor\b|\\color\b|\\definecolor\b/,
   },
+  {
+    name: 'amsmath',
+    detect: /\\text\b|\\eqref\b|\\DeclareMathOperator\b|\\begin\{(?:align|gather|multline|cases|split|bmatrix|pmatrix|vmatrix|Vmatrix|smallmatrix)\*?\}/,
+  },
+  {
+    name: 'amssymb',
+    detect: /\\mathbb\b|\\mathfrak\b|\\checkmark\b|\\angle\b|\\square\b|\\lozenge\b|\\blacklozenge\b|\\sphericalangle\b|\\complement\b|\\eth\b|\\Finv\b|\\Game\b|\\hbar\b|\\hslash\b|\\Im\b|\\intercal\b|\\mho\b|\\Re\b|\\wp\b/,
+  },
+  {
+    name: 'graphicx',
+    detect: /\\includegraphics\b/,
+  },
 ] as const satisfies readonly LatexPackageRule[]
 
 export type LatexPackageName =

@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Tooltip,
   TooltipContent,
@@ -12,10 +13,14 @@ import {
   FORMATTING_ACTIONS,
   applyColor,
   applyFontSize,
+  defineNewColor,
   getActiveFormats,
+  getDefinedColors,
   unwrapSelection,
   wrapSelection,
+  type DefinedColor,
 } from '@/utils/format';
+import { Plus } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 
 interface FormatTabProps {
@@ -25,6 +30,10 @@ interface FormatTabProps {
 export const FormatTab: React.FC<FormatTabProps> = ({ editorSetup }) => {
   const [activeFormats, setActiveFormats] = useState<string[]>([]);
   const [hasSelection, setHasSelection] = useState(false);
+  const [definedColors, setDefinedColors] = useState<DefinedColor[]>([]);
+  const [newColorName, setNewColorName] = useState('');
+  const [newColorHex, setNewColorHex] = useState('#3b82f6');
+  const [showAddColor, setShowAddColor] = useState(false);
 
   const updateActiveFormats = useCallback(() => {
     if (!editorSetup?.editor) {
@@ -62,6 +71,14 @@ export const FormatTab: React.FC<FormatTabProps> = ({ editorSetup }) => {
     }
   }, [editorSetup?.editor]);
 
+  const updateDefinedColors = useCallback(() => {
+    if (!editorSetup?.editor) return;
+    const model = editorSetup.editor.getModel();
+    if (!model) return;
+    const colors = getDefinedColors(model.getValue());
+    setDefinedColors(colors);
+  }, [editorSetup?.editor]);
+
   useEffect(() => {
     if (!editorSetup?.editor) return;
 
@@ -75,16 +92,18 @@ export const FormatTab: React.FC<FormatTabProps> = ({ editorSetup }) => {
     // Also update on content change (in case formatting changes)
     const modelDisposable = editor.onDidChangeModelContent(() => {
       updateActiveFormats();
+      updateDefinedColors();
     });
 
     // Initial update
     updateActiveFormats();
+    updateDefinedColors();
 
     return () => {
       disposable.dispose();
       modelDisposable.dispose();
     };
-  }, [editorSetup?.editor, updateActiveFormats]);
+  }, [editorSetup?.editor, updateActiveFormats, updateDefinedColors]);
 
   const handleFormatClick = useCallback(
     (before: string, after: string, title?: string) => {
@@ -135,6 +154,17 @@ export const FormatTab: React.FC<FormatTabProps> = ({ editorSetup }) => {
     },
     [editorSetup?.editor, updateActiveFormats],
   );
+
+  const handleAddColor = useCallback(() => {
+    if (!editorSetup?.editor || !newColorName || !newColorHex) return;
+    // LaTeX HTML color spec is RRGGBB without #
+    const spec = newColorHex.startsWith('#')
+      ? newColorHex.substring(1).toUpperCase()
+      : newColorHex.toUpperCase();
+    defineNewColor(editorSetup.editor, newColorName, 'HTML', spec);
+    setNewColorName('');
+    setShowAddColor(false);
+  }, [editorSetup?.editor, newColorName, newColorHex]);
 
   if (!editorSetup?.editor) {
     return (
@@ -211,9 +241,47 @@ export const FormatTab: React.FC<FormatTabProps> = ({ editorSetup }) => {
 
         {/* Colors */}
         <div className="space-y-2">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Color
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Color
+            </h3>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5"
+              onClick={() => setShowAddColor(!showAddColor)}
+            >
+              <Plus className="h-3 w-3" />
+            </Button>
+          </div>
+
+          {showAddColor && (
+            <div className="mb-2 space-y-2 rounded-md border border-border p-2">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Name"
+                  value={newColorName}
+                  onChange={(e) => setNewColorName(e.target.value)}
+                  className="h-8 text-xs"
+                />
+                <input
+                  type="color"
+                  value={newColorHex}
+                  onChange={(e) => setNewColorHex(e.target.value)}
+                  className="h-8 w-12 cursor-pointer rounded-md border border-input bg-transparent"
+                />
+              </div>
+              <Button
+                size="sm"
+                className="h-7 w-full text-[10px]"
+                onClick={handleAddColor}
+                disabled={!newColorName}
+              >
+                Add Color
+              </Button>
+            </div>
+          )}
+
           <div className="grid grid-cols-4 gap-2">
             {COLORS.map((color) => (
               <Tooltip key={color.value}>
@@ -230,6 +298,21 @@ export const FormatTab: React.FC<FormatTabProps> = ({ editorSetup }) => {
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
                   {color.label}
+                </TooltipContent>
+              </Tooltip>
+            ))}
+            {definedColors.map((color) => (
+              <Tooltip key={color.name}>
+                <TooltipTrigger asChild>
+                  <button
+                    className="h-8 w-full rounded-lg border-2 border-border transition-all hover:scale-110 hover:border-foreground"
+                    style={{ backgroundColor: color.hex }}
+                    onClick={() => handleColorClick(color.name)}
+                    aria-label={color.name}
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {color.name} ({color.hex})
                 </TooltipContent>
               </Tooltip>
             ))}

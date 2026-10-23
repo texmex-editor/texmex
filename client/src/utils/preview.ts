@@ -1,3 +1,5 @@
+import { postApiDocumentsByIdCompile } from '@/client';
+import { getApiErrorMessage } from '@/utils/apiError';
 import * as pdfjs from 'pdfjs-dist';
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import {
@@ -5,10 +7,8 @@ import {
   PDFLinkService,
   PDFViewer,
 } from 'pdfjs-dist/web/pdf_viewer.mjs';
-import { postApiDocumentsByIdCompile } from '@/client';
-import { getApiErrorMessage } from '@/utils/apiError';
 
-pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+pdfjs.GlobalWorkerOptions.workerSrc = `${workerSrc}?v=2`;
 
 // Standard fonts + cmaps are copied to these public paths by the
 // viteStaticCopy plugin (see vite.config.ts). Without them PDF.js falls back
@@ -66,7 +66,12 @@ export class PdfPreviewController {
   // Captured before each re-load so the recompile flow can put the user back
   // where they were. Null on the very first load (no prior state to keep).
   private pendingRestore:
-    | { scrollTop: number; pageNumber: number; scaleValue: string }
+    | {
+        scrollTop: number;
+        scrollLeft: number;
+        pageNumber: number;
+        scaleValue: string;
+      }
     | null = null;
 
   constructor(container: HTMLDivElement, viewer: HTMLDivElement) {
@@ -113,6 +118,10 @@ export class PdfPreviewController {
             restore.scrollTop,
             this.container.scrollHeight,
           );
+          this.container.scrollLeft = Math.min(
+            restore.scrollLeft,
+            this.container.scrollWidth,
+          );
         });
       } else {
         this.viewer.currentScaleValue = DEFAULT_SCALE;
@@ -129,6 +138,7 @@ export class PdfPreviewController {
     if (this.currentDoc) {
       this.pendingRestore = {
         scrollTop: this.container.scrollTop,
+        scrollLeft: this.container.scrollLeft,
         pageNumber: this.viewer.currentPageNumber,
         scaleValue: String(this.viewer.currentScaleValue || ''),
       };
