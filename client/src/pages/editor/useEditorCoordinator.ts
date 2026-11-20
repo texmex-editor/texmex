@@ -56,6 +56,7 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
   const [documentText, setDocumentText] = useState<string>('');
   const [runtimeRole, setRuntimeRole] = useState<DocumentRole | null>(null);
   const [editorSetup, setEditorSetup] = useState<EditorSetup | null>(null);
+  const [fileEditorSetup, setFileEditorSetup] = useState<EditorSetup | null>(null);
   const [isSnippetSidebarCollapsed, setIsSnippetSidebarCollapsed] =
     useState<boolean>(false);
   const [currentSettings, setCurrentSettings] = useState<DocumentSettings>({
@@ -244,6 +245,7 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
     canEdit: !isViewer,
     isMainTabActive,
     editorSetupRef: mainEditorSetupRef,
+    syncEditorSetup: isActiveCollaborativeTab ? editorSetup : activeFileTab?.isTextEditable ? fileEditorSetup : null,
     setStatusState,
     onAddPackage: handleAddLatexPackage,
   });
@@ -382,7 +384,10 @@ export function useEditorCoordinator({ user }: UseEditorCoordinatorArgs) {
 
   const editorSession = sessionRef.current!;
   const handleEditorReady = editorSession.handleEditorReady;
-  const handleFileEditorReady = editorSession.handleFileEditorReady;
+  const handleFileEditorReady = useCallback((setup: EditorSetup) => {
+    editorSession.handleFileEditorReady(setup);
+    setFileEditorSetup(setup);
+  }, [editorSession]);
   const handleDocChange = editorSession.handleDocChange;
   const handleSnippetInsert = editorSession.handleSnippetInsert;
   const handleOpenFormulaDialog = editorSession.handleOpenFormulaDialog;

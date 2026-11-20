@@ -198,6 +198,20 @@
   border-radius: 2px;
 }
 
+.monaco-editor .source-sync-selection {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 2px;
+}
+
+.pdf-source-sync-highlight {
+  position: absolute;
+  pointer-events: none;
+  z-index: 4;
+  background: rgba(59, 130, 246, 0.28);
+  border-radius: 2px;
+  mix-blend-mode: multiply;
+}
+
 .monaco-editor .yRemoteSelectionHead {
   position: relative;
 }

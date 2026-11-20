@@ -1,5 +1,7 @@
 import { postApiDocumentsByIdCompile } from '@/client';
 import { getApiErrorMessage } from '@/utils/apiError';
+import type * as monaco from 'monaco-editor';
+import { PreviewSourceSync } from './previewSourceSync';
 import * as pdfjs from 'pdfjs-dist';
 import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import {
@@ -59,6 +61,7 @@ export class PdfPreviewController {
   private readonly eventBus: EventBus;
   private readonly linkService: PDFLinkService;
   private readonly viewer: PDFViewer;
+  private readonly sourceSync: PreviewSourceSync;
   private currentDoc: pdfjs.PDFDocumentProxy | null = null;
   private scaleListeners = new Set<
     (scale: number, mode: NamedScale | null) => void
@@ -93,6 +96,8 @@ export class PdfPreviewController {
       removePageBorders: true,
     });
     this.linkService.setViewer(this.viewer);
+    this.sourceSync = new PreviewSourceSync(container, this.viewer);
+    this.eventBus.on('textlayerrendered', () => this.sourceSync.textLayerRendered());
 
     this.eventBus.on('pagesinit', () => {
       // On the first load, apply the project default scale. On re-loads
@@ -156,10 +161,16 @@ export class PdfPreviewController {
     this.currentDoc = doc;
     this.viewer.setDocument(doc);
     this.linkService.setDocument(doc, null);
+    void this.sourceSync.setDocument(doc);
+  }
+
+  setSyncEditor(editor: monaco.editor.IStandaloneCodeEditor | null): void {
+    this.sourceSync.setEditor(editor);
   }
 
   /** Drop the currently loaded PDF so the viewer is empty (placeholder takes over). */
   clear(): void {
+    void this.sourceSync.setDocument(null);
     try {
       // PDFViewer.setDocument accepts null at runtime to clear the viewer
       // (its TS types are stricter than the runtime contract).
@@ -221,6 +232,7 @@ export class PdfPreviewController {
   }
 
   destroy(): void {
+    this.sourceSync.destroy();
     this.scaleListeners.clear();
     try {
       // PDFViewer.setDocument accepts null at runtime to clear the viewer

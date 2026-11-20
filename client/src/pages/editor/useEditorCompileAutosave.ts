@@ -51,6 +51,7 @@ type UseEditorCompileAutosaveArgs = {
   canEdit: boolean;
   isMainTabActive: boolean;
   editorSetupRef: MutableRefObject<EditorSetup | null>;
+  syncEditorSetup?: EditorSetup | null;
   setStatusState: (text: string, cls: string) => void;
   onAddPackage?: (packageName: string) => void;
 };
@@ -62,6 +63,7 @@ export function useEditorCompileAutosave({
   canEdit,
   isMainTabActive,
   editorSetupRef,
+  syncEditorSetup,
   setStatusState,
   onAddPackage,
 }: UseEditorCompileAutosaveArgs) {
@@ -115,6 +117,12 @@ export function useEditorCompileAutosave({
       controllerRef.current = null;
     };
   }, [pdfContainerEl, pdfViewerEl]);
+
+  useEffect(() => {
+    const controller = controllerRef.current;
+    controller?.setSyncEditor(syncEditorSetup?.editor ?? null);
+    return () => controller?.setSyncEditor(null);
+  }, [syncEditorSetup, pdfContainerEl, pdfViewerEl]);
 
   // Keep fit-modes correct when the preview panel is resized (e.g. user
   // drags the splitter). Throttled via requestAnimationFrame inside the
